@@ -46,6 +46,11 @@
 - `drawing-engine/brushes.js` — резервный процедурный движок.
 - `vendor/mypaint/` — WebAssembly, brush presets, лицензия и сведения об upstream.
 
+## Новые работы
+
+- [Amber — Drawing Studio 4.0](artworks/AMBER_V4.md) — оригинальная растровая фан-иллюстрация, открывается на сайте по адресу [/#amber](https://azartworld55-ctrl.github.io/Drawing-Studio/#amber).
+- [Код рисования Эмбер](drawing-engine/amber-art.js) — послойная отрисовка средствами Canvas и MyPaint WASM.
+
 ## Художественные руководства
 
 - [ARTIST_PLAYBOOK.md](ARTIST_PLAYBOOK.md) — основное руководство по созданию оригинальных anime/game-иллюстраций.
