@@ -45,8 +45,8 @@ header{height:58px;border-bottom:1px solid var(--line);background:#171923;displa
 <select id="fallbackType" hidden><option value="round">round</option><option value="pencil">pencil</option><option value="marker">marker</option><option value="airbrush">airbrush</option><option value="watercolor">watercolor</option><option value="oil">oil</option></select></section>
 </aside>
 <main class="workspace">
-<div class="toolbar"><div class="row"><button id="fit">Вписать</button><span id="dimensions">1400 × 1000 px</span></div><div class="row" style="width:min(230px,45%)"><span id="zoomValue">100%</span><input id="zoom" type="range" min="10" max="300" value="100"></div></div>
-<div class="stage" id="stage"><div class="viewport" id="viewport"><canvas class="canvas board" id="board" width="1400" height="1000"></canvas><canvas class="canvas overlay" id="overlay" width="1400" height="1000"></canvas></div></div>
+<div class="toolbar"><div class="row"><button id="fit">Вписать</button><span id="dimensions">1600 × 1200 px</span></div><div class="row" style="width:min(230px,45%)"><span id="zoomValue">100%</span><input id="zoom" type="range" min="10" max="300" value="100"></div></div>
+<div class="stage" id="stage"><div class="viewport" id="viewport"><canvas class="canvas board" id="board" width="1600" height="1200"></canvas><canvas class="canvas overlay" id="overlay" width="1400" height="1000"></canvas></div></div>
 <div class="statusbar"><span>MyPaint WASM · Pressure / tilt · Raster layers</span><span>Ctrl+Z отмена · Ctrl+S проект · [ ] размер кисти</span></div>
 </main>
 <aside class="panel right">
@@ -58,8 +58,5 @@ header{height:58px;border-bottom:1px solid var(--line);background:#171923;displa
 </aside>
 </div>
 <script src="vendor/mypaint/brushlib.js"></script><script src="vendor/mypaint/brushes.js"></script><script src="drawing-engine/mypaint-adapter.js"></script><script src="drawing-engine/brushes.js"></script><script src="drawing-engine/app.js"></script>
-<script>
-const sw=['#24202c','#171923','#ffffff','#e85d75','#f28b42','#f4c95d','#a5c882','#4d9e87','#5b83c5','#7160a8','#bd82b8','#8d5b42','#d9a27c','#efc6ad','#8e98a8','#323d57'];
-const box=document.getElementById('swatches');sw.forEach(c=>{const b=document.createElement('button');b.style.background=c;b.title=c;b.onclick=()=>{document.getElementById('color').value=c;document.getElementById('color').dispatchEvent(new Event('input'));};box.append(b);});
-</script>
+
 </body></html>
