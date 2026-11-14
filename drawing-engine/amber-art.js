@@ -5,7 +5,7 @@
  */
 (() => {
 'use strict';
-const W=1600,H=1200,$=id=>document.getElementById(id);
+const W=1600,H=1200,$=id=>document.getElementById(id);let started=false;
 const app=window.DrawingStudioApp;
 if(!app||window.drawAmberArtwork)return;
 const C={ink:'#392b35',deep:'#5b3036',red:'#a9363c',red2:'#d4544c',redLight:'#f07a62',gold:'#e9b85e',gold2:'#ffdf91',skin:'#f4c7a8',skinLight:'#ffe0c5',skinShadow:'#ce8f7d',hair:'#63352f',hair2:'#8e4938',hairLight:'#c16a45',cream:'#f5e8d4',cloth:'#f5eee4',blue:'#536b86',sky:'#263d59',pyro:'#ff9b54'};
@@ -208,6 +208,7 @@ function makeReferenceSheet(){
  return c.toDataURL('image/png');
 }
 async function draw(){
+ if(started)return;started=true;
  const status=$('labStatus');if(status)status.textContent='Рисую Эмбер · строю слои…';
  // Configure the built-in palette and lighting labs to match the art direction.
  $('color').value='#d4544c';$('color').dispatchEvent(new Event('input'));
@@ -253,4 +254,5 @@ async function draw(){
  const zoom=$('fit');if(zoom)zoom.click();
 }
 window.drawAmberArtwork=draw;
+if(window.location.hash==='#amber')setTimeout(draw,450);
 })();
