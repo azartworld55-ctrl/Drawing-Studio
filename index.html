@@ -50,7 +50,16 @@ body.compact .left,body.compact .right{display:none}body.compact .layout{grid-te
 <section class="section"><div class="section-title">Файлы и холст</div><label class="filebtn" style="display:block;text-align:center">Импортировать изображение в слой<input id="importImage" type="file" accept="image/*" hidden></label><label class="filebtn" style="display:block;text-align:center;margin-top:7px">Открыть проект .dsp<input id="openProject" type="file" accept=".dsp,.json,application/json" hidden></label><button id="clearLayer" style="width:100%;margin-top:7px">Очистить активный слой</button><button id="downloadLayer" style="width:100%;margin-top:7px">Экспорт активного слоя PNG</button><button id="background" style="width:100%;margin-top:7px">Белый фон на нижний слой</button></section>
 <section class="section"><div class="section-title">Drawing Studio 4.0</div><p class="hint">Растровая студия с MyPaint WASM, reference workspace, перспективными направляющими, pose helper, цветовой лабораторией и техническим art review. Без подписки, платных API, аккаунтов и серверной генерации.</p></section>
 </aside></div>
-<script src="vendor/mypaint/brushlib.js"></script><script src="vendor/mypaint/brushes.js"></script><script src="drawing-engine/mypaint-adapter.js"></script><script src="drawing-engine/brushes.js"></script><script src="drawing-engine/app.js"></script><script src="drawing-engine/studio-labs.js"></script>
+<script src="drawing-engine/boot-guard.js"></script><script src="vendor/mypaint/brushlib.js"></script><script src="vendor/mypaint/brushes.js"></script><script src="drawing-engine/mypaint-adapter.js"></script><script src="drawing-engine/brushes.js"></script><script src="drawing-engine/app.js"></script><script src="drawing-engine/studio-labs.js"></script>
 <script src="drawing-engine/paint-workflow.js"></script><script src="drawing-engine/amber-painting.js"></script><script src="drawing-engine/fischl-art.js"></script>
-<script>document.getElementById('horizon').addEventListener('input',e=>document.getElementById('horizonVal').textContent=e.target.value+' px');document.getElementById('horizonVal').textContent='600 px';document.getElementById('drawAmber').addEventListener('click',()=>{if(window.drawAmberArtwork)window.drawAmberArtwork();});document.getElementById('drawFischl').addEventListener('click',()=>{if(window.drawFischlArtwork)window.drawFischlArtwork();});</script>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id);
+$('horizon').addEventListener('input',e=>$('horizonVal').textContent=e.target.value+' px');
+$('horizonVal').textContent='600 px';
+function launch(name,fn){const status=$('labStatus');if(typeof window[fn]!=='function'){if(status)status.textContent='Не запустилось: '+name+' — модуль рисунка не загрузился. Смотри ошибку выше.';return;}try{const result=window[fn]();if(result&&typeof result.catch==='function')result.catch(e=>{if(status)status.textContent='Ошибка '+name+': '+e.message;});}catch(e){if(status)status.textContent='Ошибка '+name+': '+e.message;console.error(e);}}
+$('drawAmber').addEventListener('click',()=>launch('Эмбер','drawAmberArtwork'));
+$('drawFischl').addEventListener('click',()=>launch('Фишль','drawFischlArtwork'));
+})();
+</script>
 </body></html>
