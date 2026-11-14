@@ -224,7 +224,7 @@ async function draw(){
  const detail=layer('Amber · costume details and linework');drawDetails(detail.ctx);
  const fx=layer('Amber · pyro glow and finishing');drawFinalEffects(fx.ctx);
  // A hidden construction layer documents the pose study without contaminating the finished painting.
- const pose=layer('Amber · pose construction (hidden)');drawPoseGuide(pose.ctx);pose.visible=false;
+ $('posePreset').value='action';$('addPose').click();const poseLayers=app.getLayers();poseLayers[poseLayers.length-1].visible=false;app.render();app.refresh();app.commit();
  // Add a compact original design/reference sheet to the separate Reference Workspace.
  const ref=$('referenceImage'),panel=$('referencePanel');
  ref.src=makeReferenceSheet();ref.onload=()=>{panel.hidden=false;$('refInfo').textContent='Original design study · palette, costume masses and light direction';$('refScale').value=70;$('refOpacity').value=92;$('refScale').dispatchEvent(new Event('input'));};
@@ -245,7 +245,7 @@ async function draw(){
  
  // Restore clean presentation: turn off construction overlays, retain the hidden pose layer.
  $('gridGuide').checked=false;$('perspectiveGuide').checked=false;['gridGuide','perspectiveGuide'].forEach(id=>$(id).dispatchEvent(new Event('input')));
- $('grayPreview').checked=false;$('grayPreview').dispatchEvent(new Event('change'));
+ $('grayPreview').checked=true;$('grayPreview').dispatchEvent(new Event('change'));$('grayPreview').checked=false;$('grayPreview').dispatchEvent(new Event('change'));
  app.render();app.commit();
  // Review is deliberately run as a technical report; manual criteria remain for a human to verify.
  $('runReview').click();
