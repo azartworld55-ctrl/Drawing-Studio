@@ -50,6 +50,12 @@
 - `drawing-engine/brushes.js` — резервный процедурный движок.
 - `vendor/mypaint/` — WebAssembly, brush presets, лицензия и сведения об upstream.
 
+## Режим Pixel Art
+
+В верхней панели есть отдельный режим **Pixel Art** со встроенной веб-версией [Pixelorama](https://orama-interactive.github.io/Pixelorama/). Он открывается внутри Drawing Studio; если браузер не разрешает встраивание, редактор можно открыть отдельно. Для переноса результата обратно в основную студию экспортируй PNG в Pixelorama, вернись в Drawing Studio и импортируй изображение в слой.
+
+Pixelorama — самостоятельный сторонний редактор, поэтому его проектные файлы и инструменты не смешиваются напрямую с внутренним форматом Drawing Studio (.dsp).
+
 ## Новые работы
 
 - [Amber — stroke-only digital painting](artworks/AMBER_STROKE_PAINTING.md) — новая версия: весь рисунок создаётся кистевыми мазками на растровых слоях, без геометрических фигур и заливок.
