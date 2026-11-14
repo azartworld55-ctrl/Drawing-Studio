@@ -18,7 +18,7 @@
   }
   async function createPainter(){
     const api=await load(),painter=api.painter;
-    let ctx=null,active=false;
+    let ctx=null,active=false,lastTime=0;
     return {
       presets:api.presets,
       setTarget(target){if(active)this.end();ctx=target;painter.ctx=target;},
@@ -30,7 +30,7 @@
         painter.setBrushSize(Math.max(.025,(Number(o.size)||18)/18));
         ctx.save();ctx.globalAlpha=Math.max(0,Math.min(1,Number(o.opacity??1)));
         if(o.erase)ctx.globalCompositeOperation='destination-out';
-        painter.newStroke(point.x,point.y);
+        painter.newStroke(point.x,point.y);lastTime=point.time||0;
         active=true;
         this.move([point],o);
       },
@@ -38,10 +38,10 @@
         if(!active||!points||!points.length)return;
         const o=options||{};let previous=null;
         for(const p of points){
-          const dt=Math.max(.001,Math.min(.12,(p.time&&previous&&previous.time)?(p.time-previous.time)/1000:.016));
+          const dt=Math.max(.001,Math.min(.12,(p.time&&lastTime)?(p.time-lastTime)/1000:.016));
           const pressure=o.pressure===false?1:(p.pressure>0?p.pressure:.55);
           painter.stroke(p.x,p.y,dt,pressure,p.tiltX||0,p.tiltY||0);
-          previous=p;
+          if(p.time)lastTime=p.time;previous=p;
         }
       },
       end(){if(active&&ctx){ctx.restore();active=false;}}
