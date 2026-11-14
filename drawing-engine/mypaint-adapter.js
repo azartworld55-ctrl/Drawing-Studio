@@ -1,6 +1,6 @@
 /* Drawing Studio 3.0 — MyPaint/libmypaint WebAssembly adapter.
  * Upstream: https://github.com/eliot-akira/brushlib-wasm
- * One WASM painter is rebound to the currently active raster layer.
+ * One WASM painter is rebound to the active raster layer.
  */
 (function(root){
   'use strict';
@@ -16,29 +16,35 @@
     })();
     return readyPromise;
   }
-  async function createPainter(canvas){
+  async function createPainter(){
     const api=await load(),painter=api.painter;
+    let ctx=null,active=false;
     return {
       presets:api.presets,
-      setTarget(ctx){painter.ctx=ctx;},
-      stroke(points,options){
-        if(!points||!points.length)return;
-        const o=options||{},rgb=hex(o.color),ctx=painter.ctx;
+      setTarget(target){if(active)this.end();ctx=target;painter.ctx=target;},
+      begin(point,options){
+        if(!ctx)throw new Error('No active layer canvas');
+        const o=options||{},rgb=hex(o.color);
         painter.setBrush(o.preset||api.presets[0]);
         painter.setColor(rgb[0],rgb[1],rgb[2]);
         painter.setBrushSize(Math.max(.025,(Number(o.size)||18)/18));
         ctx.save();ctx.globalAlpha=Math.max(0,Math.min(1,Number(o.opacity??1)));
         if(o.erase)ctx.globalCompositeOperation='destination-out';
-        const first=points[0];painter.newStroke(first.x,first.y);
-        let prev=first;
-        for(let i=0;i<points.length;i++){
-          const p=points[i],dt=Math.max(.001,Math.min(.12,(p.time&&prev.time)?(p.time-prev.time)/1000:.016));
+        painter.newStroke(point.x,point.y);
+        active=true;
+        this.move([point],o);
+      },
+      move(points,options){
+        if(!active||!points||!points.length)return;
+        const o=options||{};let previous=null;
+        for(const p of points){
+          const dt=Math.max(.001,Math.min(.12,(p.time&&previous&&previous.time)?(p.time-previous.time)/1000:.016));
           const pressure=o.pressure===false?1:(p.pressure>0?p.pressure:.55);
           painter.stroke(p.x,p.y,dt,pressure,p.tiltX||0,p.tiltY||0);
-          prev=p;
+          previous=p;
         }
-        ctx.restore();
-      }
+      },
+      end(){if(active&&ctx){ctx.restore();active=false;}}
     };
   }
   root.MyPaintEngine={load,createPainter};
