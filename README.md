@@ -48,6 +48,11 @@
 
 ## Новые работы
 
+- [Fischl — Drawing Studio 4.0](artworks/FISCHL_V4.md) — оригинальная растровая фан-иллюстрация; открыть на сайте через [/#fischl](https://azartworld55-ctrl.github.io/Drawing-Studio/#fischl).
+- [Код рисования Фишль](drawing-engine/fischl-art.js) — локальная послойная отрисовка средствами Canvas и MyPaint WASM.
+
+
+
 - [Amber — Drawing Studio 4.0](artworks/AMBER_V4.md) — оригинальная растровая фан-иллюстрация, открывается на сайте по адресу [/#amber](https://azartworld55-ctrl.github.io/Drawing-Studio/#amber).
 - [Код рисования Эмбер](drawing-engine/amber-art.js) — послойная отрисовка средствами Canvas и MyPaint WASM.
 
