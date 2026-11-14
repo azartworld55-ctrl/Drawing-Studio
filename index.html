@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#11131a">
-<title>Drawing Studio 2.0 — Digital Art Workspace</title>
+<title>Drawing Studio 3.0 — MyPaint Digital Painting Studio</title>
 <style>
 :root{color-scheme:dark;--bg:#11131a;--panel:#1a1d27;--panel2:#222633;--line:#303646;--text:#f1f2f7;--muted:#929bad;--accent:#a58cff;--accent2:#d0c2ff}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:13px/1.45 Inter,system-ui,-apple-system,Segoe UI,sans-serif;height:100vh;overflow:hidden}
@@ -17,13 +17,13 @@ header{height:58px;border-bottom:1px solid var(--line);background:#171923;displa
 .viewport{position:relative;transform-origin:center center;box-shadow:0 18px 60px #0009;flex:none}.canvas{position:absolute;inset:0;width:100%;height:100%;display:block}.board{background-color:#f8f8f8;background-image:linear-gradient(45deg,#ddd 25%,transparent 25%),linear-gradient(-45deg,#ddd 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#ddd 75%),linear-gradient(-45deg,transparent 75%,#ddd 75%);background-size:24px 24px;background-position:0 0,0 12px,12px -12px,-12px 0;touch-action:none;cursor:crosshair}.overlay{pointer-events:none}.statusbar{height:28px;flex:none;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 12px;color:var(--muted);font-size:10px}
 .layerlist{display:flex;flex-direction:column;gap:5px}.layer{display:flex;align-items:center;gap:6px;padding:5px;background:#202430;border:1px solid transparent;border-radius:7px}.layer.selected{border-color:var(--accent);background:#302a40}.layer button{border:0;background:transparent;padding:5px}.layer .eye{width:27px;color:var(--accent2)}.layer-name{flex:1;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.layer-index{font-size:10px;color:var(--muted);padding:0 5px}
 .mini-actions{display:flex;gap:5px}.mini-actions button{flex:1;padding:7px 4px}.hint{color:var(--muted);font-size:11px;line-height:1.5}
-body.compact .left,body.compact .right{display:none}body.compact .layout{grid-template-columns:minmax(0,1fr)}
+.engine-status{font-size:10px;color:var(--muted);font-weight:700}.engine-status.ready{color:#77d6a0}.engine-status.fallback{color:#ffc27b}\nbody.compact .left,body.compact .right{display:none}body.compact .layout{grid-template-columns:minmax(0,1fr)}
 @media(max-width:950px){.layout{grid-template-columns:205px minmax(260px,1fr)}.right{display:none}body.compact .right{display:none}}
 @media(max-width:650px){body{overflow:auto;height:auto;min-height:100vh}.layout{height:calc(100vh - 58px);grid-template-columns:1fr;grid-template-rows:auto minmax(350px,1fr)}.left{border:0;border-bottom:1px solid var(--line);max-height:38vh;display:grid;grid-template-columns:1fr 1fr;gap:12px}.left .section{margin:0}.left .section:first-child{grid-column:1/-1}.workspace{min-height:420px}.head-actions button{font-size:11px;padding:7px}.version{display:none}}
 </style>
 </head>
 <body>
-<header><div class="brand">✦ Drawing <b>Studio</b><span class="version">2.0 · RASTER WORKSPACE</span></div><div class="head-actions"><button id="togglePanels" class="quiet">◫ Панели</button><button id="undo" title="Ctrl+Z">↶</button><button id="redo" title="Ctrl+Shift+Z">↷</button><button id="saveProject">Сохранить проект</button><button class="primary" id="savePNG">Экспорт PNG</button></div></header>
+<header><div class="brand">✦ Drawing <b>Studio</b><span class="version">3.0 · MYPAINT ENGINE</span></div><div class="head-actions"><button id="togglePanels" class="quiet">◫ Панели</button><button id="undo" title="Ctrl+Z">↶</button><button id="redo" title="Ctrl+Shift+Z">↷</button><button id="saveProject">Сохранить проект</button><button class="primary" id="savePNG">Экспорт PNG</button></div></header>
 <div class="layout">
 <aside class="panel left">
 <section class="section"><div class="section-title">Инструменты</div><div class="toolgrid">
@@ -39,22 +39,25 @@ body.compact .left,body.compact .right{display:none}body.compact .layout{grid-te
 <div class="field"><label>Размер <output id="sizeVal">18 px</output></label><input id="size" type="range" min="1" max="150" value="18"></div>
 <div class="field"><label>Непрозрачность <output id="opacityVal">85%</output></label><input id="opacity" type="range" min="1" max="100" value="85"></div>
 <label class="check"><input id="pressure" type="checkbox" checked> Учитывать нажим стилуса</label></section>
-<section class="section"><div class="section-title">Материал кисти</div><select id="brushType"><option value="round">Мягкая круглая</option><option value="pencil">Графитовый карандаш</option><option value="marker">Маркер</option><option value="airbrush">Аэрограф / распыление</option><option value="watercolor">Акварельная заливка</option><option value="oil">Масляная кисть</option></select><p class="hint">Каждый режим использует отдельную растровую модель мазка. Выбирай инструмент слева, а материал — здесь.</p></section>
+<section class="section"><div class="section-title">MyPaint Brush Engine <span class="engine-status" id="engineStatus">Загрузка WASM…</span></div>
+<label class="field"><span class="hint">Настоящие пресеты кистей MyPaint</span><select id="brushPreset"><option>Загрузка набора…</option></select></label>
+<div class="hint">Выбрана кисть: <b id="presetName">—</b></div><p class="hint" id="engineDetail">Загружаю WebAssembly и оригинальные параметры кистей. После загрузки мазки рассчитывает libmypaint.</p>
+<select id="fallbackType" hidden><option value="round">round</option><option value="pencil">pencil</option><option value="marker">marker</option><option value="airbrush">airbrush</option><option value="watercolor">watercolor</option><option value="oil">oil</option></select></section>
 </aside>
 <main class="workspace">
 <div class="toolbar"><div class="row"><button id="fit">Вписать</button><span id="dimensions">1400 × 1000 px</span></div><div class="row" style="width:min(230px,45%)"><span id="zoomValue">100%</span><input id="zoom" type="range" min="10" max="300" value="100"></div></div>
 <div class="stage" id="stage"><div class="viewport" id="viewport"><canvas class="canvas board" id="board" width="1400" height="1000"></canvas><canvas class="canvas overlay" id="overlay" width="1400" height="1000"></canvas></div></div>
-<div class="statusbar"><span>Canvas 2D · Pressure-aware · Layer compositing</span><span>Ctrl+Z отмена · Ctrl+S проект · [ ] размер кисти</span></div>
+<div class="statusbar"><span>MyPaint WASM · Pressure / tilt · Raster layers</span><span>Ctrl+Z отмена · Ctrl+S проект · [ ] размер кисти</span></div>
 </main>
 <aside class="panel right">
 <section class="section"><div class="section-title">Слои <span id="layerCount">1400×1000</span></div><div class="mini-actions"><button id="addLayer">＋ Слой</button><button id="deleteLayer">− Удалить</button></div><div class="mini-actions" style="margin-top:6px"><button id="layerUp">↑ Выше</button><button id="layerDown">↓ Ниже</button></div><div class="layerlist" id="layers" style="margin-top:9px"></div>
 <div class="field"><label>Непрозрачность слоя <output id="layerOpacityValue">100%</output></label><input id="layerOpacity" type="range" min="0" max="100" value="100"></div>
 <div class="field"><label>Режим смешивания</label><select id="blend"><option value="source-over">Обычный</option><option value="multiply">Умножение</option><option value="screen">Осветление</option><option value="overlay">Перекрытие</option><option value="darken">Затемнение</option><option value="lighten">Осветление (макс.)</option><option value="color-dodge">Осветлитель</option><option value="soft-light">Мягкий свет</option></select></div></section>
-<section class="section"><div class="section-title">Файл и холст</div><label class="filebtn" style="display:block;text-align:center">Импортировать изображение<input id="importImage" type="file" accept="image/*" hidden></label><label class="filebtn" style="display:block;text-align:center;margin-top:7px">Открыть проект .dsp<input id="openProject" type="file" accept=".dsp,.json,application/json" hidden></label><button id="clearLayer" style="width:100%;margin-top:7px">Очистить активный слой</button><button id="background" style="width:100%;margin-top:7px">Белый фон на нижний слой</button></section>
-<section class="section"><div class="section-title">О проекте</div><p class="hint">Drawing Studio 2.0 — бесплатная растровая мастерская. Рисование, слои, режимы смешивания, импорт, PNG и переносимый проектный файл. Работает локально в браузере, без аккаунтов, платных API и сетевых библиотек.</p></section>
+<section class="section"><div class="section-title">Файл и холст</div><label class="filebtn" style="display:block;text-align:center">Импортировать изображение<input id="importImage" type="file" accept="image/*" hidden></label><label class="filebtn" style="display:block;text-align:center;margin-top:7px">Открыть проект .dsp<input id="openProject" type="file" accept=".dsp,.json,application/json" hidden></label><button id="clearLayer" style="width:100%;margin-top:7px">Очистить активный слой</button><button id="downloadLayer" style="width:100%;margin-top:7px">Экспорт активного слоя PNG</button><button id="background" style="width:100%;margin-top:7px">Белый фон на нижний слой</button></section>
+<section class="section"><div class="section-title">О проекте</div><p class="hint">Drawing Studio 3.0 — растровая мастерская на Canvas 2D и MyPaint Brush Engine (WebAssembly). 36 пресетов кистей, нажим и наклон пера, слои, смешивание, импорт и PNG. Без платных API и внешних runtime-сервисов.</p></section>
 </aside>
 </div>
-<script src="drawing-engine/brushes.js"></script><script src="drawing-engine/app.js"></script>
+<script src="vendor/mypaint/brushlib.js"></script><script src="vendor/mypaint/brushes.js"></script><script src="drawing-engine/mypaint-adapter.js"></script><script src="drawing-engine/brushes.js"></script><script src="drawing-engine/app.js"></script>
 <script>
 const sw=['#24202c','#171923','#ffffff','#e85d75','#f28b42','#f4c95d','#a5c882','#4d9e87','#5b83c5','#7160a8','#bd82b8','#8d5b42','#d9a27c','#efc6ad','#8e98a8','#323d57'];
 const box=document.getElementById('swatches');sw.forEach(c=>{const b=document.createElement('button');b.style.background=c;b.title=c;b.onclick=()=>{document.getElementById('color').value=c;document.getElementById('color').dispatchEvent(new Event('input'));};box.append(b);});
