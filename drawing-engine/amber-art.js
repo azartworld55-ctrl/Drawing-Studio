@@ -17,7 +17,7 @@ const glow=(c,x,y,r,color,alpha=1)=>{c.save();const g=c.createRadialGradient(x,y
 const roundRect=(c,x,y,w,h,r,fill,stroke=C.ink,sw=3)=>{c.beginPath();c.roundRect(x,y,w,h,r);if(fill){c.fillStyle=fill;c.fill();}if(stroke){c.strokeStyle=stroke;c.lineWidth=sw;c.stroke();}};
 function layer(name){return app.addLayer(name);}
 function strokeEngine(ctx,paths,color,size,opacity,preset,api){
- if(api){const painter=api.painter;const brush=api.presets.find(p=>preset.test(p.name))||api.presets[0];painter.setBrush(brush);painter.setColor(parseInt(color.slice(1,3),16),parseInt(color.slice(3,5),16),parseInt(color.slice(5,7),16));painter.setBrushSize(size/18);ctx.save();ctx.globalAlpha=opacity;for(const pts of paths){if(pts.length<2)continue;painter.newStroke(pts[0][0],pts[0][1]);let last=0;for(let i=1;i<pts.length;i++){painter.stroke(pts[i][0],pts[i][1],.018,.65,0,0);last++;}}ctx.restore();}
+ if(api){const painter=api.painter,brush=api.presets.find(p=>preset.test(p.name))||api.presets[0];painter.setTarget(ctx);for(const pts of paths){if(pts.length<2)continue;const t=Date.now();painter.begin({x:pts[0][0],y:pts[0][1],time:t},{preset:brush,color,size,opacity,pressure:false});painter.move(pts.slice(1).map((p,i)=>({x:p[0],y:p[1],pressure:.72,time:t+(i+1)*16})),{preset:brush,color,size,opacity,pressure:false});painter.end();}}
  else if(window.DrawingStudioBrushes){for(const pts of paths)DrawingStudioBrushes.paintStroke(ctx,pts.map(p=>({x:p[0],y:p[1],pressure:.65})),{type:'pencil',color,size,opacity,seed:73,pressure:true});}
 }
 function drawBackground(c){
@@ -242,7 +242,7 @@ async function draw(){
  [[320,610],[370,570],[420,565],[470,600]],
  [[1090,850],[1150,885],[1210,880],[1260,840]]
  ],'#f8bd83',7,.52,/soft|dry|pencil/i,api);
- if(api){api.painter.end?.();}
+ 
  // Restore clean presentation: turn off construction overlays, retain the hidden pose layer.
  $('gridGuide').checked=false;$('perspectiveGuide').checked=false;['gridGuide','perspectiveGuide'].forEach(id=>$(id).dispatchEvent(new Event('input')));
  $('grayPreview').checked=false;$('grayPreview').dispatchEvent(new Event('change'));
