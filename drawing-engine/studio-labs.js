@@ -54,7 +54,7 @@ function addPoseGuide(){
  c.save();c.strokeStyle='rgba(45,110,190,.8)';c.fillStyle='rgba(45,110,190,.10)';c.lineWidth=9;c.lineCap='round';c.lineJoin='round';
  const line=(a,b)=>{c.beginPath();c.moveTo(...a);c.lineTo(...b);c.stroke()};
  const dot=(a,r=18)=>{c.beginPath();c.arc(a[0],a[1],r,0,Math.PI*2);c.fill();c.stroke()};
- const ellipse=(a,b)=>{c.beginPath();c.ellipse((a[0]+b[0])/2,(a[1]+b[1])/2,Math.abs(a[0]-b[0])*.62,Math.abs(a[1]-b[1])*.68,0,0,Math.PI*2);c.fill();c.stroke()};
+ const ellipse=(a,b)=>{c.beginPath();c.ellipse((a[0]+b[0])/2,(a[1]+b[1])/2,Math.max(34,Math.abs(a[0]-b[0])*.62),Math.max(42,Math.abs(a[1]-b[1])*.68),0,0,Math.PI*2);c.fill();c.stroke()};
  dot(p.head,48);line(p.head,p.neck);ellipse(p.shoulders[0],p.shoulders[1]);ellipse(p.hips[0],p.hips[1]);
  line(p.shoulders[0],p.shoulders[1]);line(p.hips[0],p.hips[1]);
  line(p.neck,p.shoulders[0]);line(p.neck,p.shoulders[1]);
