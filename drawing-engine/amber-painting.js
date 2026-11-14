@@ -200,5 +200,16 @@ async function draw(){
   if(status)status.textContent='Эмбер · живопись мазками · MyPaint / raster brush fallback · 10 слоёв';
  }catch(e){if(status)status.textContent='Ошибка рисования: '+e.message;console.error(e);}
 }
-window.drawAmberArtwork=draw;if(window.location.hash==='#amber')setTimeout(draw,600);
+window.drawAmberArtwork=draw;
+// GitHub Pages may finish loading the brush WASM after this module.
+// Start after the page load event; the manual button remains available.
+const launchAmber=()=>{
+ if(window.location.hash==='#amber'&&!started){
+  const status=$('labStatus');
+  if(status)status.textContent='Загружаю кисти и начинаю рисовать Эмбер…';
+  setTimeout(()=>{if(!started)draw();},350);
+ }
+};
+if(document.readyState==='complete')setTimeout(launchAmber,350);
+else window.addEventListener('load',launchAmber,{once:true});
 })();
