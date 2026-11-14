@@ -6,7 +6,7 @@ const view=board.getContext('2d'), fx=overlay.getContext('2d');
 let layers=[],active=0,tool='brush',drawing=false,points=[],shapeStart=null,zoom=1,pan={x:0,y:0},undo=[],redo=[],seed=1;
 const defaults=[['Фон','#ffffff'],['Эскиз','#22202b'],['Цвет','#d88952']];
 function makeLayer(name,visible=true){const c=document.createElement('canvas');c.width=W;c.height=H;return {name,canvas:c,ctx:c.getContext('2d'),visible,opacity:1,blend:'source-over'};}
-function init(){layers=[makeLayer('Слой 1')];renderLayers();fit();saveHistory();}
+function init(){const bg=makeLayer('Фон');bg.ctx.fillStyle='#ffffff';bg.ctx.fillRect(0,0,W,H);layers=[bg];renderLayers();fit();saveHistory();}
 function snapshot(){return layers.map(l=>({name:l.name,visible:l.visible,opacity:l.opacity,blend:l.blend,data:l.canvas.toDataURL()}));}
 function saveHistory(){undo.push(snapshot());if(undo.length>18)undo.shift();redo=[];historyButtons();}
 function historyButtons(){$('undo').disabled=undo.length<2;$('redo').disabled=!redo.length;}
@@ -16,7 +16,7 @@ function stepForward(){if(!redo.length)return;const s=redo.pop();undo.push(s);lo
 function renderLayers(){view.clearRect(0,0,W,H);for(const l of layers){if(!l.visible)continue;view.save();view.globalAlpha=l.opacity;view.globalCompositeOperation=l.blend;view.drawImage(l.canvas,0,0);view.restore();} $('dimensions').textContent=W+' × '+H+' px';}
 function renderLayerList(){const box=$('layers');box.innerHTML='';layers.forEach((l,i)=>{const row=document.createElement('div');row.className='layer'+(i===active?' selected':'');row.innerHTML='<button class="eye" title="Видимость">'+(l.visible?'◉':'○')+'</button><button class="layer-name"></button><span class="layer-index">'+(i+1)+'</span>';row.querySelector('.eye').onclick=e=>{e.stopPropagation();l.visible=!l.visible;renderLayers();renderLayerList();};row.querySelector('.layer-name').textContent=l.name;row.querySelector('.layer-name').onclick=()=>{active=i;syncLayerUI();};row.onclick=()=>{active=i;syncLayerUI();};box.append(row);});$('layerOpacity').value=Math.round((layers[active]?.opacity||1)*100);$('layerOpacityValue').textContent=$('layerOpacity').value+'%';$('blend').value=layers[active]?.blend||'source-over';}
 function syncLayerUI(){renderLayerList();renderLayers();}
-function addLayer(){saveHistory();layers.push(makeLayer('Слой '+(layers.length+1)));active=layers.length-1;syncLayerUI();}
+function addLayer(){layers.push(makeLayer('Слой '+(layers.length+1)));active=layers.length-1;saveHistory();syncLayerUI();}
 function deleteLayer(){if(layers.length===1){layers[0].ctx.clearRect(0,0,W,H);}else{layers.splice(active,1);active=Math.max(0,active-1);}saveHistory();syncLayerUI();}
 function moveLayer(dir){const n=active+dir;if(n<0||n>=layers.length)return;[layers[active],layers[n]]=[layers[n],layers[active]];active=n;saveHistory();syncLayerUI();}
 function fit(){const r=stage.getBoundingClientRect();zoom=Math.min((r.width-50)/W,(r.height-50)/H,1);zoom=Math.max(.08,zoom);pan={x:0,y:0};applyView();}
