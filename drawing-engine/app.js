@@ -83,7 +83,7 @@ $('background').onclick=()=>{const l=layers[0];l.ctx.save();l.ctx.globalComposit
 $('color').oninput=()=>{$('colorHex').textContent=$('color').value.toUpperCase();};$('size').oninput=()=>{$('sizeVal').textContent=$('size').value+' px';};$('opacity').oninput=()=>{$('opacityVal').textContent=$('opacity').value+'%';};
 $('togglePanels').onclick=()=>document.body.classList.toggle('compact');
 window.addEventListener('keydown',e=>{if(e.target.matches('input,select,textarea'))return;const k=e.key.toLowerCase();if((e.ctrlKey||e.metaKey)&&k==='z'){e.preventDefault();e.shiftKey?redoAction():undoAction();}else if((e.ctrlKey||e.metaKey)&&k==='s'){e.preventDefault();saveProject();}else if((e.ctrlKey||e.metaKey)&&k==='y'){e.preventDefault();redoAction();}else if(k==='b')setTool('brush');else if(k==='e')setTool('eraser');else if(k==='i')setTool('eyedropper');else if(k==='g')setTool('fill');else if(k==='h')setTool('hand');else if(e.key==='['){$('size').value=Math.max(1,+$('size').value-2);$('size').dispatchEvent(new Event('input'));}else if(e.key===']'){$('size').value=Math.min(180,+$('size').value+2);$('size').dispatchEvent(new Event('input'));}});
-new ResizeObserver(()=>{if(zoom<=1)fit();}).observe(stage);
+if(typeof ResizeObserver!=='undefined'){new ResizeObserver(()=>{if(zoom<=1)fit();}).observe(stage);}else{window.addEventListener('resize',()=>{if(zoom<=1)fit();});}
 window.DrawingStudioApp={addLayer,activeLayer,render:renderLayers,refresh:syncLayerUI,commit:saveHistory,composite,undo:undoAction,redo:redoAction,getLayers:()=>layers};
 const sw=$('swatches');colorNames.forEach(c=>{const b=document.createElement('button');b.style.background=c;b.title=c;b.onclick=()=>{$('color').value=c;$('color').dispatchEvent(new Event('input'));};sw.append(b);});
 init();
