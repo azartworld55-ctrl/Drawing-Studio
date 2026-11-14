@@ -1,0 +1,6 @@
+// Free, dependency-free Canvas 2D painterly helpers.
+(function(g){'use strict';function rng(seed){let s=seed>>>0;return()=>((s=(s*1664525+1013904223)>>>0)/4294967296)}
+function texturedStroke(ctx,pts,o={}){let r=rng(o.seed||1),w=o.width||8;ctx.save();ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle=o.color||'#a85b35';ctx.lineWidth=w;ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(...p):ctx.moveTo(...p));ctx.stroke();for(let i=0,n=Math.max(8,pts.length*w*(o.density||1.4));i<n;i++){let t=r()*(pts.length-1),j=Math.floor(t),f=t-j,a=pts[j],b=pts[Math.min(j+1,pts.length-1)],x=a[0]+(b[0]-a[0])*f,y=a[1]+(b[1]-a[1])*f;ctx.globalAlpha=.12+r()*.28;ctx.strokeStyle=r()>.5?(o.light||'#ffe0ad'):(o.shadow||'#663c32');ctx.lineWidth=.5+r()*Math.max(1,w*.13);ctx.beginPath();ctx.moveTo(x+(r()-.5)*w*.5,y+(r()-.5)*w*.5);ctx.lineTo(x+(r()-.5)*w,y+(r()-.5)*w);ctx.stroke()}ctx.restore()}
+function softGlow(ctx,x,y,r,color){ctx.save();let g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,color);g.addColorStop(1,'transparent');ctx.fillStyle=g;ctx.fillRect(x-r,y-r,r*2,r*2);ctx.restore()}
+function grain(ctx,w,h,n=1500,seed=7){let r=rng(seed);ctx.save();for(let i=0;i<n;i++){ctx.globalAlpha=.025+r()*.05;ctx.fillStyle=r()>.5?'#fff':'#241a25';ctx.fillRect(r()*w,r()*h,1+r()*2,1+r()*2)}ctx.restore()}
+g.DrawingStudioBrushes={texturedStroke,softGlow,grain,rng}})(window);
