@@ -20,11 +20,23 @@ header{height:58px;border-bottom:1px solid var(--line);background:#171a24;displa
 #referencePanel{position:absolute;z-index:10;left:14px;top:14px;max-width:min(460px,75%);max-height:85%;overflow:auto;background:#181d29ed;border:1px solid #69728a;border-radius:10px;box-shadow:0 12px 40px #0009;padding:9px;backdrop-filter:blur(12px)}#referencePanel[hidden]{display:none}#referenceHeader{display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:move;touch-action:none;margin-bottom:6px;font-weight:700}#referenceImage{display:block;max-width:100%;max-height:55vh;object-fit:contain;border-radius:5px}.ref-controls{display:grid;grid-template-columns:1fr 1fr;gap:8px}.ref-controls label{font-size:10px;color:var(--muted)}
 body.compact .left,body.compact .right{display:none}body.compact .layout{grid-template-columns:minmax(0,1fr)}
 @media(max-width:1120px){.layout{grid-template-columns:215px minmax(280px,1fr)}.right{display:none}body.compact .right{display:none}}
+
+/* Pixelorama — отдельный режим пиксель-арта */
+#pixeloramaMode{display:none;height:calc(100vh - 58px);min-height:0;flex-direction:column;background:#10131b}
+#pixeloramaMode .pixel-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 14px;background:#191d28;border-bottom:1px solid var(--line);flex:none}
+#pixeloramaMode .pixel-toolbar p{margin:0;color:var(--muted);font-size:11px}
+#pixeloramaFrame{display:block;width:100%;height:100%;min-height:0;flex:1;border:0;background:#171a24}
+#pixeloramaMode .pixel-fallback{display:none;padding:9px 14px;background:#242033;color:#e8e1ff;font-size:12px}
+#pixeloramaMode .pixel-fallback a{color:#d8ccff}
+body.pixelorama-mode .layout{display:none}
+body.pixelorama-mode #pixeloramaMode{display:flex}
+body.pixelorama-mode #versionLabel{display:none}
+@media(max-width:680px){#pixeloramaMode{height:calc(100vh - 58px);min-height:540px}#pixeloramaMode .pixel-toolbar{align-items:flex-start;flex-direction:column;gap:5px}}
 @media(max-width:680px){body{height:auto;min-height:100vh;overflow:auto}.layout{height:auto;min-height:calc(100vh - 58px);grid-template-columns:1fr;grid-template-rows:auto minmax(470px,65vh)}.left{border:0;border-bottom:1px solid var(--line);max-height:36vh;display:grid;grid-template-columns:1fr 1fr;gap:10px}.left .section{margin:0}.left .section:first-child{grid-column:1/-1}.workspace{min-height:470px}.head-actions button{font-size:10px;padding:6px}.version{display:none}.right{display:block;max-height:none;border-left:0;border-top:1px solid var(--line)}body.compact .right{display:none}}
 </style>
 </head>
 <body>
-<header><div class="brand">✦ Drawing <b>Studio</b><span class="version" id="versionLabel">4.0 · ARTIST LAB</span></div><div class="head-actions"><button id="togglePanels" class="quiet">◫ Панели</button><button id="toggleReference" title="Референс">▧ Референс</button><button id="drawAmber" class="primary">🎨 Нарисовать Эмбер</button><button id="drawFischl" class="primary">⚡ Нарисовать Фишль</button><button id="undo" title="Ctrl+Z">↶</button><button id="redo" title="Ctrl+Shift+Z">↷</button><button id="saveProject">Проект .dsp</button><button class="primary" id="savePNG">Экспорт PNG</button></div></header>
+<header><div class="brand">✦ Drawing <b>Studio</b><span class="version" id="versionLabel">4.0 · ARTIST LAB</span></div><div class="head-actions"><button id="togglePanels" class="quiet">◫ Панели</button><button id="openPixelorama" class="primary" aria-pressed="false">▦ Pixel Art</button><button id="toggleReference" title="Референс">▧ Референс</button><button id="drawAmber" class="primary">🎨 Нарисовать Эмбер</button><button id="drawFischl" class="primary">⚡ Нарисовать Фишль</button><button id="undo" title="Ctrl+Z">↶</button><button id="redo" title="Ctrl+Shift+Z">↷</button><button id="saveProject">Проект .dsp</button><button class="primary" id="savePNG">Экспорт PNG</button></div></header>
 <div class="layout">
 <aside class="panel left">
 <section class="section"><div class="section-title">Инструменты</div><div class="toolgrid">
@@ -50,6 +62,14 @@ body.compact .left,body.compact .right{display:none}body.compact .layout{grid-te
 <section class="section"><div class="section-title">Файлы и холст</div><label class="filebtn" style="display:block;text-align:center">Импортировать изображение в слой<input id="importImage" type="file" accept="image/*" hidden></label><label class="filebtn" style="display:block;text-align:center;margin-top:7px">Открыть проект .dsp<input id="openProject" type="file" accept=".dsp,.json,application/json" hidden></label><button id="clearLayer" style="width:100%;margin-top:7px">Очистить активный слой</button><button id="downloadLayer" style="width:100%;margin-top:7px">Экспорт активного слоя PNG</button><button id="background" style="width:100%;margin-top:7px">Белый фон на нижний слой</button></section>
 <section class="section"><div class="section-title">Drawing Studio 4.0</div><p class="hint">Растровая студия с MyPaint WASM, reference workspace, перспективными направляющими, pose helper, цветовой лабораторией и техническим art review. Без подписки, платных API, аккаунтов и серверной генерации.</p></section>
 </aside></div>
+<section id="pixeloramaMode" aria-label="Режим Pixelorama">
+  <div class="pixel-toolbar">
+    <div><strong>Pixelorama · Pixel Art Mode</strong><p>Отдельный редактор пиксель-арта. Создай PNG в Pixelorama, затем при желании импортируй его в Drawing Studio как слой.</p></div>
+    <div class="row"><a href="https://orama-interactive.github.io/Pixelorama/" target="_blank" rel="noopener noreferrer" style="color:#d8ccff">Открыть отдельно ↗</a><button id="closePixelorama">← Вернуться в Drawing Studio</button></div>
+  </div>
+  <div id="pixeloramaFallback" class="pixel-fallback">Если редактор не отображается внутри окна, <a href="https://orama-interactive.github.io/Pixelorama/" target="_blank" rel="noopener noreferrer">открой Pixelorama в отдельной вкладке</a>.</div>
+  <iframe id="pixeloramaFrame" title="Pixelorama — редактор пиксель-арта" data-src="https://orama-interactive.github.io/Pixelorama/" allow="fullscreen; clipboard-read; clipboard-write" allowfullscreen></iframe>
+</section>
 <script src="drawing-engine/boot-guard.js"></script><script src="vendor/mypaint/brushlib.js"></script><script src="vendor/mypaint/brushes.js"></script><script src="drawing-engine/mypaint-adapter.js"></script><script src="drawing-engine/brushes.js"></script><script src="drawing-engine/app.js"></script><script src="drawing-engine/studio-labs.js"></script>
 <script src="drawing-engine/paint-workflow.js"></script><script src="drawing-engine/amber-painting.js"></script><script src="drawing-engine/fischl-art.js"></script>
 <script>
@@ -59,7 +79,19 @@ $('horizon').addEventListener('input',e=>$('horizonVal').textContent=e.target.va
 $('horizonVal').textContent='600 px';
 function launch(name,fn){const status=$('labStatus');if(typeof window[fn]!=='function'){if(status)status.textContent='Не запустилось: '+name+' — модуль рисунка не загрузился. Смотри ошибку выше.';return;}try{const result=window[fn]();if(result&&typeof result.catch==='function')result.catch(e=>{if(status)status.textContent='Ошибка '+name+': '+e.message;});}catch(e){if(status)status.textContent='Ошибка '+name+': '+e.message;console.error(e);}}
 $('drawAmber').addEventListener('click',()=>launch('Эмбер','drawAmberArtwork'));
+
 $('drawFischl').addEventListener('click',()=>launch('Фишль','drawFischlArtwork'));
+const pixelMode=$('pixeloramaMode'),pixelFrame=$('pixeloramaFrame');
+function setPixeloramaMode(enabled){
+  document.body.classList.toggle('pixelorama-mode',enabled);
+  $('openPixelorama').setAttribute('aria-pressed',String(enabled));
+  $('openPixelorama').textContent=enabled?'← Живопись':'▦ Pixel Art';
+  if(enabled&&!pixelFrame.src)pixelFrame.src=pixelFrame.dataset.src;
+  if(enabled){$('labStatus').textContent='Открыт Pixelorama · пиксельный редактор';}
+}
+$('openPixelorama').addEventListener('click',()=>setPixeloramaMode(!document.body.classList.contains('pixelorama-mode')));
+$('closePixelorama').addEventListener('click',()=>setPixeloramaMode(false));
+
 })();
 </script>
 </body></html>
