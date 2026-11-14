@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#171923">
+<title>Drawing Studio</title>
+<style>
+:root{color-scheme:dark;--bg:#11131b;--panel:#1b1e2a;--panel2:#242838;--line:#34394c;--text:#f3f4fa;--muted:#a6abc0;--accent:#9d8cff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.4 system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
+header{height:62px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);background:#171923;gap:12px}
+.brand{font-size:18px;font-weight:750;letter-spacing:.2px}.brand span{color:var(--accent)}.top-actions{display:flex;gap:8px;align-items:center}
+button,.file-label{border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:9px;padding:9px 12px;font:inherit;cursor:pointer}
+button:hover,.file-label:hover{border-color:var(--accent)}button:disabled{opacity:.4;cursor:not-allowed}.primary{background:var(--accent);border-color:var(--accent);color:#171523;font-weight:700}
+.layout{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:calc(100vh - 62px)}
+aside{padding:16px;border-right:1px solid var(--line);background:#171923;display:flex;flex-direction:column;gap:16px}
+.group{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px}.group h2{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin:0 0 12px}
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:7px}.tool.active{border-color:var(--accent);background:#393252;color:#fff}
+label{display:flex;justify-content:space-between;align-items:center;color:var(--muted);margin:10px 0 6px}input[type=range]{width:100%;accent-color:var(--accent)}input[type=color]{width:100%;height:38px;border:1px solid var(--line);border-radius:8px;background:var(--panel2);padding:3px}
+.palette{display:grid;grid-template-columns:repeat(6,1fr);gap:7px;margin-top:10px}.swatch{width:100%;aspect-ratio:1;border:2px solid #ffffff22;border-radius:7px;padding:0}.swatch.active{outline:2px solid var(--accent);outline-offset:2px}
+.workspace{padding:18px;display:flex;flex-direction:column;min-width:0;gap:12px}.workspace-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;color:var(--muted);flex-wrap:wrap}
+.stage{flex:1;min-height:500px;border:1px solid var(--line);border-radius:14px;background-color:#242735;background-image:linear-gradient(45deg,#2c3040 25%,transparent 25%),linear-gradient(-45deg,#2c3040 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#2c3040 75%),linear-gradient(-45deg,transparent 75%,#2c3040 75%);background-size:24px 24px;background-position:0 0,0 12px,12px -12px,-12px 0;display:flex;align-items:center;justify-content:center;padding:16px;overflow:hidden}
+.canvas-wrap{position:relative;width:min(100%,1000px);aspect-ratio:4/3;box-shadow:0 12px 40px #0008;background:white}
+canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair}
+.hint{font-size:12px;color:var(--muted);text-align:center}
+@media(max-width:760px){.layout{grid-template-columns:1fr}aside{border-right:0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}.group:first-child{grid-column:1/-1}.workspace{padding:12px}.stage{min-height:55vh;padding:8px}header{padding:0 12px}.top-actions button{padding:8px}}
+@media(max-width:430px){aside{grid-template-columns:1fr}.group:first-child{grid-column:auto}.top-actions button{font-size:12px;padding:7px}}
+</style>
+</head>
+<body>
+<header><div class="brand">✦ Drawing <span>Studio</span></div><div class="top-actions"><button id="undo">↶ Отменить</button><button id="redo">↷ Повторить</button><button class="primary" id="save">Скачать PNG</button></div></header>
+<div class="layout">
+<aside>
+<section class="group"><h2>Инструменты</h2><div class="tools">
+<button class="tool active" data-tool="brush">✎ Кисть</button><button class="tool" data-tool="eraser">◩ Ластик</button><button class="tool" data-tool="line">／ Линия</button><button class="tool" data-tool="rect">□ Прямоугольник</button><button class="tool" data-tool="ellipse">◯ Эллипс</button><button class="tool" data-tool="fill">▰ Заливка</button>
+</div></section>
+<section class="group"><h2>Цвет и кисть</h2><label for="color">Основной цвет</label><input id="color" type="color" value="#24243a"><div class="palette" id="palette"></div><label for="size">Размер <output id="sizeValue">8 px</output></label><input id="size" type="range" min="1" max="80" value="8"><label for="opacity">Непрозрачность <output id="opacityValue">100%</output></label><input id="opacity" type="range" min="5" max="100" value="100"></section>
+<section class="group"><h2>Холст</h2><button id="clear" style="width:100%">Очистить холст</button><label class="file-label" for="openImage" style="justify-content:center;cursor:pointer">Открыть изображение</label><input id="openImage" type="file" accept="image/*" hidden></section>
+</aside>
+<main class="workspace"><div class="workspace-bar"><span>Рабочее пространство</span><span id="status">Холст 1200 × 900</span></div><div class="stage"><div class="canvas-wrap"><canvas id="art" width="1200" height="900"></canvas></div></div><div class="hint">Рисуй мышью, стилусом или пальцем. PNG сохраняется с белым фоном.</div></main>
+</div>
+<script>
+const canvas=document.getElementById('art'),ctx=canvas.getContext('2d'),color=document.getElementById('color'),size=document.getElementById('size'),opacity=document.getElementById('opacity');
+let tool='brush',drawing=false,start=null,last=null,snapshot=null,undoStack=[],redoStack=[];
+ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);
+function remember(){undoStack.push(ctx.getImageData(0,0,canvas.width,canvas.height));if(undoStack.length>30)undoStack.shift();redoStack=[];buttons()}
+function buttons(){document.getElementById('undo').disabled=!undoStack.length;document.getElementById('redo').disabled=!redoStack.length}
+function restore(stack,other){if(!stack.length)return;other.push(ctx.getImageData(0,0,canvas.width,canvas.height));ctx.putImageData(stack.pop(),0,0);buttons()}
+document.getElementById('undo').onclick=()=>restore(undoStack,redoStack);document.getElementById('redo').onclick=()=>restore(redoStack,undoStack);
+document.querySelectorAll('.tool').forEach(b=>b.onclick=()=>{tool=b.dataset.tool;document.querySelectorAll('.tool').forEach(x=>x.classList.toggle('active',x===b))});
+size.oninput=()=>document.getElementById('sizeValue').value=size.value+' px';opacity.oninput=()=>document.getElementById('opacityValue').value=opacity.value+'%';
+const colors=['#24243a','#111111','#ffffff','#e74c3c','#f39c12','#f1c40f','#2ecc71','#1abc9c','#3498db','#4169e1','#9b59b6','#e84393','#8d5524','#ffb6c1','#a0a0a0','#78c8c8','#bada55','#ff7f50'];
+const palette=document.getElementById('palette');colors.forEach(c=>{const b=document.createElement('button');b.className='swatch';b.style.background=c;b.title=c;b.onclick=()=>{color.value=c;document.querySelectorAll('.swatch').forEach(s=>s.classList.toggle('active',s===b))};palette.append(b)});
+function point(e){const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*canvas.width/r.width,y:(e.clientY-r.top)*canvas.height/r.height}}
+function style(){ctx.globalAlpha=Number(opacity.value)/100;ctx.strokeStyle=tool==='eraser'?'#fff':color.value;ctx.fillStyle=color.value;ctx.lineWidth=Number(size.value);ctx.lineCap='round';ctx.lineJoin='round'}
+function draw(p){ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();last=p}
+canvas.addEventListener('pointerdown',e=>{if(tool==='fill'){remember();ctx.globalAlpha=1;ctx.fillStyle=color.value;ctx.fillRect(0,0,canvas.width,canvas.height);return}remember();canvas.setPointerCapture(e.pointerId);drawing=true;start=last=point(e);snapshot=ctx.getImageData(0,0,canvas.width,canvas.height);style();if(tool==='brush'||tool==='eraser'){ctx.beginPath();ctx.arc(start.x,start.y,Math.max(1,ctx.lineWidth/2),0,Math.PI*2);ctx.fill()}});
+canvas.addEventListener('pointermove',e=>{if(!drawing)return;const p=point(e);style();if(tool==='brush'||tool==='eraser'){draw(p)}else{ctx.putImageData(snapshot,0,0);ctx.beginPath();if(tool==='line'){ctx.moveTo(start.x,start.y);ctx.lineTo(p.x,p.y);ctx.stroke()}else if(tool==='rect'){ctx.strokeRect(start.x,start.y,p.x-start.x,p.y-start.y)}else if(tool==='ellipse'){ctx.ellipse((start.x+p.x)/2,(start.y+p.y)/2,Math.abs(p.x-start.x)/2,Math.abs(p.y-start.y)/2,0,0,Math.PI*2);ctx.stroke()}}});
+function finish(){if(!drawing)return;drawing=false;ctx.globalAlpha=1;snapshot=null}
+canvas.addEventListener('pointerup',finish);canvas.addEventListener('pointercancel',finish);
+document.getElementById('clear').onclick=()=>{remember();ctx.globalAlpha=1;ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height)};
+document.getElementById('save').onclick=()=>{const a=document.createElement('a');a.download='my-drawing.png';a.href=canvas.toDataURL('image/png');a.click()};
+document.getElementById('openImage').onchange=e=>{const file=e.target.files[0];if(!file)return;const img=new Image();img.onload=()=>{remember();ctx.globalAlpha=1;ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);const scale=Math.min(canvas.width/img.width,canvas.height/img.height);const w=img.width*scale,h=img.height*scale;ctx.drawImage(img,(canvas.width-w)/2,(canvas.height-h)/2,w,h);URL.revokeObjectURL(img.src)};img.src=URL.createObjectURL(file);e.target.value=''};
+buttons();
+</script>
+</body></html>
