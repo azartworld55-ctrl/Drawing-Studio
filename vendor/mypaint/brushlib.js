@@ -216,7 +216,7 @@ exports.create = function create(canvas) {
         ytilt = (ytilt || 0.0)
         dt = (dt || 0.1)
 
-        bindings.stroke_to(x, y, pressure, 0, ytilt, dt)
+        bindings.stroke_to(x, y, pressure, xtilt, ytilt, dt)
 
         return this
       }
