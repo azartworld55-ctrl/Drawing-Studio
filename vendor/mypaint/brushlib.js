@@ -49,10 +49,10 @@ exports.create = function create(canvas) {
 
       const result = bindings.getColor(x, y, radius)
 
-      Module.setValue(rPointer, result[0], 'float')
-      Module.setValue(gPointer, result[1], 'float')
-      Module.setValue(bPointer, result[2], 'float')
-      Module.setValue(aPointer, result[3], 'float')
+      Module.HEAPF32[rPointer >> 2] = result[0]
+      Module.HEAPF32[gPointer >> 2] = result[1]
+      Module.HEAPF32[bPointer >> 2] = result[2]
+      Module.HEAPF32[aPointer >> 2] = result[3]
     }
 
     function drawDabProxy(
